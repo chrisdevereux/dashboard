@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es3",
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "inlineSourceMap": true,
+    "jsx": "react"
+  },
+  "exclude": [
+    "typings/main.d.ts",
+    "typings/main",
+    "node_modules"
+  ]
+}
