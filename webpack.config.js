@@ -13,7 +13,9 @@ module.exports = {
   output: {
     publicPath: '/'
   },
-  resolve: ['.js', '.jsx', '.ts', '.tsx'],
+  resolve: {
+    extensions: ['', '.js', '.jsx', '.ts', '.tsx']
+  },
   module: {
     loaders: [
       {

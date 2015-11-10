@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node_modules/.bin/webpack-dev-server --config webpack.config.js --history-api-fallback --content-base static",
     "pretest": "node_modules/.bin/tsc --outDir build",
-    "test": "node_modules/.bin/mocha src/**/*.test.ts",
-    "watch": "node_modules/watchy/bin/watchy -w src/**/*.ts -- npm test"
+    "test": "node_modules/.bin/mocha",
+    "watch": "node_modules/watchy/bin/watchy -w src/**/* -- npm test"
   },
   "author": "Chris Devereux",
   "license": "ISC",
@@ -18,11 +18,15 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
+    "chai-equal-jsx": "^1.0.9",
     "css-loader": "^0.23.1",
     "file-loader": "^0.8.5",
+    "inspect-react-element": "^1.1.1",
     "less": "^2.6.0",
     "less-loader": "^2.2.2",
     "mocha": "^2.4.5",
+    "react-addons-test-utils": "^0.14.7",
+    "react-shallow-testutils": "^0.4.1",
     "style-loader": "^0.13.0",
     "ts-loader": "^0.8.1",
     "typescript": "^1.7.5",
