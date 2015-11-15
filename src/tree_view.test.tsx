@@ -2,16 +2,31 @@ import * as React from 'react'
 import {expect} from 'chai'
 import {createRenderer} from 'react-addons-test-utils'
 
-import TreeView, {Column, Row, TreeNode, ColumnProps} from './tree_view'
+import TreeView, {Column, Row, DisclosureState, TreeNode, ColumnProps} from './tree_view'
 
 describe("TreeView", () => {
   it('should render', () => {
     const data: TreeNode = {
-      values: [{title: 'A', val: 1}, {title: 'B', val: 2}], children: {},
-      renderPrimaryCell: data => data['title']
+      values: [
+        {title: 'A', val: 1}, 
+        {title: 'B', val: 2}
+      ],
+      renderPrimaryCell: data => data['title'],
+      getKey: data => String(data['title']),
+      children: {
+        A: {
+          values: [
+            {title: 'A1', val: 1},
+            {title: 'A2', val: 2}    
+          ],
+          renderPrimaryCell: data => data['title'],
+          getKey: data => String(data['title']),
+          children: null
+        }
+      }
     }
     const tree = (
-      <TreeView data={data}>
+      <TreeView data={data} onDisclosureChange={() => {}}>
         <Column title='Title' renderCell={data => String(data['title'])}/>,
         <Column title='Value' renderCell={data => String(data['val'])}/>
       </TreeView> 
@@ -21,7 +36,7 @@ describe("TreeView", () => {
     renderer.render(tree)
     
     expect(renderer.getRenderOutput()).to.equalJSX(
-      <table>
+      <table className='pivot'>
         <thead>
           <tr>
             <th/>
@@ -29,8 +44,10 @@ describe("TreeView", () => {
           </tr>
         </thead>
         <tbody>
-          <Row columns={tree.props.children} data={data.values[0]} renderPrimaryCell={data.renderPrimaryCell}/>
-          <Row columns={tree.props.children} data={data.values[1]} renderPrimaryCell={data.renderPrimaryCell}/>
+          <Row disclosureState={DisclosureState.Disclosed} keypath={['A']} onClick={() => {}} columns={tree.props.children} data={data.values[0]} renderPrimaryCell={data.renderPrimaryCell}/>
+          <Row disclosureState={DisclosureState.Leaf} keypath={['A', 'A1']} onClick={() => {}} columns={tree.props.children} data={data.children['A'].values[0]} renderPrimaryCell={data.renderPrimaryCell}/>
+          <Row disclosureState={DisclosureState.Leaf} keypath={['A', 'A2']} onClick={() => {}} columns={tree.props.children} data={data.children['A'].values[1]} renderPrimaryCell={data.renderPrimaryCell}/>
+          <Row disclosureState={DisclosureState.Undisclosed} keypath={['B']} onClick={() => {}} columns={tree.props.children} data={data.values[1]} renderPrimaryCell={data.renderPrimaryCell}/>
         </tbody>
       </table>
     )

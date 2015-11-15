@@ -10,7 +10,12 @@ export type TreeNode = {
   
   /** Function for rendering the primary (leftmost) column cell */
   renderPrimaryCell: (data: RowData) => React.ReactNode
+  
+  /** Return a unique ID (unique within the current node) for a child row */
+  getKey: (data: RowData) => string
 }
+
+type DisclosureChangeCallback = (keypath: string[]) => void
 
 /** Row data type */
 export type RowData = {[index: string]: RowValue}
@@ -25,7 +30,7 @@ export default class TreeView extends React.Component<TreeViewProps, {}> {
     const {data, children} = this.props
     
     return (
-      <table>
+      <table className='pivot'>
         <thead>
           <tr>
             <th/>
@@ -33,27 +38,62 @@ export default class TreeView extends React.Component<TreeViewProps, {}> {
           </tr>
         </thead>
         <tbody>
-        {
-          data.values.map((row: RowData, i: number) =>
-            <Row key={String(i)} 
-              data={row}
-              columns={children}
-              renderPrimaryCell={data.renderPrimaryCell}
-            />
-          )
-        }
+          {this.renderChildren(data, [])}
         </tbody>
       </table>
     );
+  }
+  
+  renderNode(row: RowData, node: TreeNode, parentKeypath: string[]): React.ReactNode[] {
+    const key = node.getKey(row)
+    const keypath = [...parentKeypath, key]
+    const {children, renderPrimaryCell} = node
+    
+    return [
+      <Row key={keypath.join('>')} 
+        keypath={keypath}
+        data={row}
+        columns={this.props.children}
+        renderPrimaryCell={renderPrimaryCell}
+        onClick={this.props.onDisclosureChange}
+        disclosureState={this.disclosureStateFor(key, node)}
+      />,
+      ...(
+        children && children[key] && this.renderChildren(children[key], keypath)
+      )
+    ]
+  }
+  
+  renderChildren(node: TreeNode, keypath: string[]): React.ReactNode[] {
+    const nodes = node.values.map((row: RowData) =>
+      this.renderNode(row, node, keypath)
+    )
+    
+    return nodes.concat.apply([], nodes)
+  }
+  
+  disclosureStateFor(key: string, node: TreeNode): DisclosureState {
+    if (node.children === null) {
+      return DisclosureState.Leaf
+      
+    } else if (node.children[key]) {
+      return DisclosureState.Disclosed
+      
+    } else {
+      return DisclosureState.Undisclosed
+    }
   }
 }
 
 export type TreeViewProps = {
   /** Columns are defined as children of the table */
-  children?: React.ReactElement<ColumnProps>,
+  children?: React.ReactElement<ColumnProps>
   
   /** Root data node */
   data: TreeNode
+  
+  /** Notify that a node requests a change to its disclosed state */
+  onDisclosureChange: DisclosureChangeCallback
 }
 
 
@@ -81,10 +121,17 @@ export type ColumnProps = {
 
 /** Row in a TreeView **/
 export class Row extends React.Component<RowProps, {}> {
+  componentWillMount() {
+    this.handleClicked = this.handleClicked.bind(this)
+  }
+  
   render() {
     return (
       <tr>
-        <td>{this.props.renderPrimaryCell(this.props.data)}</td>
+        <td className='primary-column' style={{paddingLeft: `${this.indentationFactor()}em`}}>
+          {this.disclosureIndicator()}
+          {this.renderPrimaryColumnContent()}
+        </td>
         {
           React.Children.map(this.props.columns, (col: React.ReactElement<ColumnProps>) =>
             <td>{col.props.renderCell(this.props.data)}</td>
@@ -93,10 +140,47 @@ export class Row extends React.Component<RowProps, {}> {
       </tr>
     )
   }
+  
+  renderPrimaryColumnContent(): React.ReactNode {
+    if (this.props.disclosureState !== DisclosureState.Leaf) {
+      return (
+        <a href='#' onClick={this.handleClicked}>
+          {this.props.renderPrimaryCell(this.props.data)}
+        </a>
+      )
+
+    } else {
+      return this.props.renderPrimaryCell(this.props.data)
+    }
+  }
+  
+  indentationFactor(): number {
+    if (this.props.disclosureState === DisclosureState.Leaf) {
+      return this.props.keypath.length
+    } else {
+      return this.props.keypath.length - 1
+    }
+  }
+  
+  disclosureIndicator(): React.ReactNode {
+    switch (this.props.disclosureState) {
+    case DisclosureState.Disclosed: return <span className='disclosed-indicator'/>
+    case DisclosureState.Undisclosed: return <span className='undisclosed-indicator'/>
+    case DisclosureState.Leaf: return null
+    }
+  }
+  
+  handleClicked(evt: React.SyntheticEvent) {
+    this.props.onClick(this.props.keypath)
+    evt.preventDefault()
+  }
 }
 
 type RowProps = {
   key?: string,
+  
+  /** Path identifying row's location in tree */
+  keypath: string[],
   
   /** Column elements passed from TreeView */
   columns: React.ReactElement<ColumnProps>, 
@@ -106,4 +190,16 @@ type RowProps = {
   
   /** Primary cell renderer */
   renderPrimaryCell: (data: RowData) => React.ReactNode 
+  
+  /** Disclosure change event */
+  onClick: DisclosureChangeCallback,
+
+  /** The current state of the row */  
+  disclosureState: DisclosureState 
+}
+
+export enum DisclosureState {
+  Disclosed,
+  Undisclosed,
+  Leaf
 }
