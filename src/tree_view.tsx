@@ -164,8 +164,8 @@ export class Row extends React.Component<RowProps, {}> {
   
   disclosureIndicator(): React.ReactNode {
     switch (this.props.disclosureState) {
-    case DisclosureState.Disclosed: return <span className='disclosed-indicator'/>
-    case DisclosureState.Undisclosed: return <span className='undisclosed-indicator'/>
+    case DisclosureState.Disclosed: return <span className='disclosed-indicator' style={{width: '1em'}}/>
+    case DisclosureState.Undisclosed: return <span className='undisclosed-indicator' style={{width: '1em'}}/>
     case DisclosureState.Leaf: return null
     }
   }

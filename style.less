@@ -1,0 +1,55 @@
+table.pivot {
+  @header-color: #fafafa;
+  @border-color: rgba(0,0,0,.07);
+  
+  width: 100%;
+  font-weight: 300;
+  color: #364149;
+  
+  th {
+    text-align: left;
+    background-color: @header-color;
+    border-bottom: solid @border-color 1px;
+    
+    font-weight: 600;
+    font-size: 10pt;
+    padding: 0.3em;
+  }
+  
+  td {
+    padding: 0.3em;
+  }
+  
+  td.primary-column {
+    background-color: darken(@header-color, 1%);
+    border-right: solid @border-color 1px;
+    
+    color: lighten(black, 20%);
+    width: 10em;
+    max-width: 25%;
+    
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+    
+    a:hover {
+      text-decoration: underline;
+      color: #008cff;
+    }
+  }
+}
+
+
+.disclosed-indicator, .undisclosed-indicator {
+  display: inline-block;
+}
+
+.disclosed-indicator:before {
+  content: '▾'
+}
+
+.undisclosed-indicator:before {
+  content: '▸'
+}
+
