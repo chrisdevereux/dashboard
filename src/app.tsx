@@ -1,7 +1,8 @@
 import * as React from 'react'
 import {render} from 'react-dom';
 
-import TreeView, {Column, TreeNode, RowData} from './tree_view'
+import TreeView, {Column} from './tree_view'
+import {TreeNode, RowData} from './types'
 
 class App extends React.Component<{}, {data: TreeNode}> {
   componentWillMount() {
@@ -12,8 +13,8 @@ class App extends React.Component<{}, {data: TreeNode}> {
   render() {
     return (
       <TreeView data={this.state.data} onDisclosureChange={this.toggleDisplayed}>
-        <Column title='Title' renderCell={data => String(data['title'])}/>
-        <Column title='Value' renderCell={data => String(data['value'])}/>
+        <Column title='Title' renderCell={(data: RowData) => String(data['title'])}/>
+        <Column title='Value' renderCell={(data: RowData) => String(data['value'])}/>
       </TreeView> 
     )
   }

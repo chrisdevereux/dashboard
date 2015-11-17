@@ -1,28 +1,6 @@
 import * as React from 'react'
 
-/** TreeView data node **/
-export type TreeNode = {
-  /** Array of row data for this node's immediate children */
-  values: RowData[]
-  
-  /** A data node for each disclosed child of this node view */
-  children: {[index: string]: TreeNode}
-  
-  /** Function for rendering the primary (leftmost) column cell */
-  renderPrimaryCell: (data: RowData) => React.ReactNode
-  
-  /** Return a unique ID (unique within the current node) for a child row */
-  getKey: (data: RowData) => string
-}
-
-type DisclosureChangeCallback = (keypath: string[]) => void
-
-/** Row data type */
-export type RowData = {[index: string]: RowValue}
-
-/** Row data variant */
-export type RowValue = string|number|Date
-
+import {TreeNode, RowData, ColumnDescriptor} from './types'
 
 /** TreeView component **/
 export default class TreeView extends React.Component<TreeViewProps, {}> {
@@ -87,7 +65,7 @@ export default class TreeView extends React.Component<TreeViewProps, {}> {
 
 export type TreeViewProps = {
   /** Columns are defined as children of the table */
-  children?: React.ReactElement<ColumnProps>
+  children?: React.ReactElement<ColumnDescriptor>
   
   /** Root data node */
   data: TreeNode
@@ -95,6 +73,8 @@ export type TreeViewProps = {
   /** Notify that a node requests a change to its disclosed state */
   onDisclosureChange: DisclosureChangeCallback
 }
+
+type DisclosureChangeCallback = (keypath: string[]) => void
 
 
 
@@ -104,19 +84,12 @@ export type TreeViewProps = {
  * Responsible for rendering both the column heading (when mounted as a component),
  * and, via its renderCell prop, a data cell in the table body.
  * */
-export class Column extends React.Component<ColumnProps, {}> {
+export class Column extends React.Component<ColumnDescriptor, {}> {
   render() {
     return <th>{this.props.title}</th>
   }  
 }
 
-export type ColumnProps = {
-  /** User-displayed column title */
-  title: string,
-  
-  /** Given a data row, return the appropriate cell content for the column */
-  renderCell: (data: RowData) => React.ReactNode
-}
 
 
 /** Row in a TreeView **/
@@ -133,7 +106,7 @@ export class Row extends React.Component<RowProps, {}> {
           {this.renderPrimaryColumnContent()}
         </td>
         {
-          React.Children.map(this.props.columns, (col: React.ReactElement<ColumnProps>) =>
+          React.Children.map(this.props.columns, (col: React.ReactElement<ColumnDescriptor>) =>
             <td>{col.props.renderCell(this.props.data)}</td>
           )
         }
@@ -183,7 +156,7 @@ type RowProps = {
   keypath: string[],
   
   /** Column elements passed from TreeView */
-  columns: React.ReactElement<ColumnProps>, 
+  columns: React.ReactElement<ColumnDescriptor>, 
   
   /** Row data */
   data: RowData,

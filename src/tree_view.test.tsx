@@ -2,7 +2,8 @@ import * as React from 'react'
 import {expect} from 'chai'
 import {createRenderer} from 'react-addons-test-utils'
 
-import TreeView, {Column, Row, DisclosureState, TreeNode, ColumnProps} from './tree_view'
+import TreeView, {Column, Row, DisclosureState} from './tree_view'
+import {TreeNode} from './types'
 
 describe("TreeView", () => {
   it('should render', () => {
