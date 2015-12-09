@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {render} from 'react-dom';
+import {render} from 'react-dom'
 
 import TreeView, {Column} from './tree_view'
 import {TreeNode, RowData} from './types'
@@ -50,7 +50,8 @@ class App extends React.Component<{}, {data: TreeNode}> {
       values: this.generateValues(),
       renderPrimaryCell: data => `Row ${data['title']}`,
       getKey: data => String(data['title']),
-      children: Math.random() < 0.2 ? null : {}
+      children: Math.random() < 0.2 ? null : {},
+      queryString: ''
     }
   }
   

@@ -13,6 +13,8 @@ export type TreeNode = {
   
   /** Return a unique ID (unique within the current node) for a child row */
   getKey: (data: RowData) => string
+  
+  queryString: string
 }
 
 /** Row data type */
@@ -20,6 +22,9 @@ export type RowData = {[index: string]: RowValue}
 
 /** Row data variant */
 export type RowValue = string|number|Date
+
+/** Query Resolver **/
+export type QueryResolver = (query: string) => Promise<RowData[]>
 
 
 /** Display properties for a table data column */

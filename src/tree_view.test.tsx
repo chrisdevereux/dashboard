@@ -12,6 +12,7 @@ describe("TreeView", () => {
         {title: 'A', val: 1}, 
         {title: 'B', val: 2}
       ],
+      queryString: '',
       renderPrimaryCell: data => data['title'],
       getKey: data => String(data['title']),
       children: {
@@ -21,6 +22,7 @@ describe("TreeView", () => {
             {title: 'A2', val: 2}    
           ],
           renderPrimaryCell: data => data['title'],
+          queryString: '',
           getKey: data => String(data['title']),
           children: null
         }

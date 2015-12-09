@@ -1,10 +1,12 @@
 import * as ReduxThunk from 'redux-thunk'
 import {combineReducers} from 'redux'
 import {createSelector} from 'reselect'
-import {TreeNode, RowData} from './types'
+import {TreeNode, RowData, QueryResolver} from './types'
 
-export type DisplayStoreAction = ShapeChanged
+export type DisplayStoreAction = ShapeChanged|QuerySubmitted|QueryResolved
 type ShapeChanged = {type: string, shape: TreeNode}
+type QuerySubmitted = {type: string, queryString: string}
+type QueryResolved = {type: string, queryString: string, response: RowData[]}
 
 type Thunk = (dispatch: (action: DisplayStoreAction) => void, getState: () => DisplayState) => Promise<any>
 
@@ -13,16 +15,34 @@ type Thunk = (dispatch: (action: DisplayStoreAction) => void, getState: () => Di
  * ACTIONS
  */
 
-export function shapeChanged(shape: TreeNode): Thunk {
+/** 
+ * Update the display state with the new tree shape, sumbitting any queries
+ * needed to populate the tree view.
+ */ 
+export function shapeChanged(shape: TreeNode, resolveQuery: QueryResolver): Thunk {
   return (dispatch, getState) => {
     dispatch({type: 'shape-changed', shape})
     
-    return Promise.resolve()
+    const todo = selectUnsubmittedQueries(getState()).map(queryString => {
+      dispatch({type: 'query-submitted', queryString})
+      
+      return resolveQuery(queryString).then(response => {
+        dispatch({type: 'query-resolved', queryString, response})
+      })
+    })
+    
+    return Promise.all(todo)
   }
 }
 
 function isShapeChanged(action: DisplayStoreAction): action is ShapeChanged {
   return action.type && action.type == 'shape-changed'
+}
+function isQuerySubmitted(action: DisplayStoreAction): action is QuerySubmitted {
+  return action.type && action.type == 'query-submitted'
+}
+function isQueryResolved(action: DisplayStoreAction): action is QueryResolved {
+  return action.type && action.type == 'query-resolved'
 }
 
 
@@ -45,6 +65,7 @@ export type DisplayState = {
 type DataStore = {[index: string]: RowData[]}
  
  
+ /** Data store reducers */
 export const reducer: Reducer<DisplayState> = combineReducers({
   shape: createReducer<TreeNode>(null, (prev, action) => {
     if (isShapeChanged(action)) {
@@ -56,7 +77,15 @@ export const reducer: Reducer<DisplayState> = combineReducers({
   }),
   
   data: createReducer<DataStore>({}, (prev, action) => {
-    return prev
+    if (isQuerySubmitted(action)) {
+      return Object.assign({}, prev, {[action.queryString]: null})
+      
+    } else if (isQueryResolved(action)) {
+      return Object.assign({}, prev, {[action.queryString]: action.response})
+      
+    } else {
+      return prev
+    }
   })
 })
 
@@ -68,6 +97,7 @@ export const reducer: Reducer<DisplayState> = combineReducers({
 const selectData = ({data}: DisplayState) => data
 const selectShape = ({shape}: DisplayState) => shape
 
+/** Combine a subtree with the relevant data */
 function populateData(shape: TreeNode, data: DataStore): TreeNode {
   return Object.freeze(
     Object.assign({}, shape, {
@@ -77,10 +107,30 @@ function populateData(shape: TreeNode, data: DataStore): TreeNode {
   )
 }
 
-/** Combine tree shape with fetched data */
+/** Recurse through the tree, returning all queryStrings unknown to data */
+function populateUnsubmittedQueries(shape: TreeNode, data: DataStore): string[] {
+  const childQueries = Object.keys(shape.children || {})
+    .map(key => populateUnsubmittedQueries(shape.children[key], data))
+    .map(values => [].concat.apply([], values))
+  
+  if (shape.queryString in data) {
+    return childQueries
+      
+  } else {
+    return [shape.queryString, ...childQueries]
+  }
+}
+
+/** Merge the display tree with the available data */
 export const selectDisplayTree = createSelector(
   selectShape, selectData,
   populateData
+)
+
+/** Return the set of queries we need to display the tree in its current state */
+export const selectUnsubmittedQueries = createSelector(
+  selectShape, selectData,
+  populateUnsubmittedQueries
 )
 
 
@@ -96,6 +146,7 @@ function createReducer<T>(start: T, reduce: Reducer<T>): Reducer<T> {
   return (prev, action) => Object.freeze(reduce(prev || Object.freeze(start), action))
 }
 
+/** Transform children of tree node, allowing missing children */
 function mapChildren(children: {[index: string]: TreeNode}, fn: (node: TreeNode, key: string) => TreeNode): {[index: string]: TreeNode} {
   if (!children) return children
   
