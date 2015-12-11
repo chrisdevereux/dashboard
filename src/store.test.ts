@@ -23,6 +23,17 @@ describe('toggle-disclosed', () => {
   })
 })
 
+describe('set-config', () => {
+  it('should set config', () => {
+    const state = dispatchActions(
+      Actions.setConfig({reports: []})
+    )
+    expect(Store.selectConfig(state)).to.eql({
+      reports: []
+    })
+  })
+})
+
 function dispatchActions(...actions: Actions.AnyAction[]) : Store.AppState {
   const initAction: any = {}
   return actions.reduce(Store.reduceApp, Store.reduceApp(undefined, initAction))

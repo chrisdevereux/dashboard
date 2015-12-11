@@ -1,12 +1,35 @@
 import * as Actions from './actions'
+import {ConfigDescriptor} from './types'
 
 export type AppState = {
-  disclosure: DisclosureState
+  disclosure: DisclosureState,
+  config: ConfigDescriptor
 }
 
 export const reduceApp = createReducer(null, (prev: AppState, action: Actions.AnyAction) => ({
-  disclosure: reduceDisclosure(prev && prev.disclosure, action)
+  disclosure: reduceDisclosure(prev && prev.disclosure, action),
+  config: reduceReportConfig(prev && prev.config, action)
 }))
+
+
+
+/**
+ * CONFIG STATE
+ */
+
+export function selectConfig(state: AppState): ConfigDescriptor {
+  return state.config
+}
+
+const reduceReportConfig = createReducer<ConfigDescriptor>({reports: []}, (prev, action) => {
+  if (Actions.isSetConfig(action)) {
+    return action.config
+    
+  } else {
+    return prev
+  }
+})
+
 
 
 

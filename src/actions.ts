@@ -1,4 +1,6 @@
-export type AnyAction = ToggleDisclosed
+import {ConfigDescriptor} from './types'
+
+export type AnyAction = ToggleDisclosed|SetConfig
 
 /** ToggleDisclosed Action **/
 type ToggleDisclosed = {type: string, keypath: string[]}
@@ -11,4 +13,22 @@ export function toggleDisclosed(keypath: string[]): ToggleDisclosed {
 /** Test for ToggleDisclosed action */
 export function isToggleDisclosed(a: AnyAction): a is ToggleDisclosed {
   return a.type && a.type === 'toggle-disclosed'
+}
+
+
+
+/** SetConfig Action **/
+type SetConfig = {
+  type: string,
+  config: ConfigDescriptor
+}
+
+/** Action creator **/
+export function setConfig(config: ConfigDescriptor): SetConfig {
+  return Object.freeze({type: 'set-config', config})
+}
+
+/** Test for ToggleDisclosed action */
+export function isSetConfig(a: AnyAction): a is SetConfig {
+  return a.type && a.type === 'set-config'
 }
