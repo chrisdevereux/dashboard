@@ -1,7 +1,9 @@
 import * as ReduxThunk from 'redux-thunk'
 import {combineReducers} from 'redux'
 import {createSelector} from 'reselect'
+
 import {TreeNode, RowData, QueryResolver} from './types'
+import {mapDictionary} from './util'
 
 export type DisplayStoreAction = ShapeChanged|QuerySubmitted|QueryResolved
 type ShapeChanged = {type: string, shape: TreeNode}
@@ -102,7 +104,7 @@ function populateData(shape: TreeNode, data: DataStore): TreeNode {
   return Object.freeze(
     Object.assign({}, shape, {
       values: data[shape.queryString],
-      children: mapChildren(shape.children, child => populateData(child, data))
+      children: mapDictionary(shape.children, (child: TreeNode) => populateData(child, data))
     })
   )
 }
@@ -144,16 +146,4 @@ type Reducer<T> = (prev: T, action: DisplayStoreAction) => T
 /** Utility for guaranteeing (shallow) immutability of state returned from reducer*/
 function createReducer<T>(start: T, reduce: Reducer<T>): Reducer<T> {
   return (prev, action) => Object.freeze(reduce(prev || Object.freeze(start), action))
-}
-
-/** Transform children of tree node, allowing missing children */
-function mapChildren(children: {[index: string]: TreeNode}, fn: (node: TreeNode, key: string) => TreeNode): {[index: string]: TreeNode} {
-  if (!children) return children
-  
-  const next: {[index: string]: TreeNode} = {}
-  Object.keys(children).forEach(key => {
-    next[key] = fn(children[key], key)  
-  })
-  
-  return next
 }
