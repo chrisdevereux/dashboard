@@ -17,39 +17,6 @@ export const reduceApp = createReducer(null, (prev: AppState, action: Actions.An
 
 
 /**
- * TREE STATE
- */
-
-export const selectTreeState = createSelector(
-  selectDisclosure, selectConfig, selectReportIndex,
-  
-  (disclosue: DisclosureState, config: ConfigDescriptor, reportIndex: number) => {
-    const report = config.reports[reportIndex]
-    return getNode(disclosue, [], report.groups, report.datasourceID)
-  }
-)
-
-function getNode(disclosure: DisclosureState, keypath: string[], groups: GroupDescriptor[], datasource: string): TreeNode {
-  const [group, ...restGroups] = groups
-  
-  const expandable = restGroups.length > 0
-  const getChildren = () =>
-    mapDictionary(disclosure, (child, key) => 
-      getNode(child, [...keypath, key], restGroups, datasource)
-    )
-  
-  return {
-    values: undefined,
-    children: expandable ? getChildren() : null,
-    getKey: group.getKey,
-    renderPrimaryCell: group.renderCell,
-    queryString: ''
-  }
-}
-
-
-
-/**
  * CONFIG STATE
  */
 
@@ -69,7 +36,6 @@ const reduceReportConfig = createReducer<ConfigDescriptor>({reports: []}, (prev,
     return prev
   }
 })
-
 
 
 
@@ -121,6 +87,69 @@ const reduceDisclosure: Reducer<DisclosureState> = createReducer<DisclosureState
     return prev
   }
 })
+
+
+
+/**
+ * QUERY STATE
+ */
+
+type QueryProvider = (keypath: string[]) => string
+
+export const selectQueryProvider = createSelector(
+  selectConfig, selectReportIndex,
+  
+  (config, reportIndex) => (keypath: string[]) => {
+    const report = config.reports[reportIndex]
+    const parentGroups = report.groups.slice(0, keypath.length)
+    const group = report.groups[keypath.length]
+    
+    return SQL.encode({
+      datasourceID: report.datasourceID,
+      filter: parentGroups.map((g, i) => ({
+        type: FilterType.equals,
+        lhs: g.fieldID,
+        rhs: keypath[i]
+      })),
+      sum: report.columns.map(col => col.fieldID),
+      groupBy: [group.fieldID] 
+    })
+  }
+)
+
+
+
+/**
+ * TREE STATE
+ */
+
+export const selectTreeState = createSelector(
+  selectDisclosure, selectConfig, selectReportIndex, selectQueryProvider,
+  
+  (disclosue: DisclosureState, config: ConfigDescriptor, reportIndex: number, getQuery: QueryProvider) => {
+    const report = config.reports[reportIndex]
+    return getNode(disclosue, [], report.groups, report.datasourceID, getQuery)
+  }
+)
+
+function getNode(disclosure: DisclosureState, keypath: string[], groups: GroupDescriptor[], datasource: string, getQuery: QueryProvider): TreeNode {
+  const [group, ...restGroups] = groups
+  
+  const expandable = restGroups.length > 0
+  const getChildren = () =>
+    mapDictionary(disclosure, (child, key) => 
+      getNode(child, [...keypath, key], restGroups, datasource, getQuery)
+    )
+  
+  return {
+    values: undefined,
+    children: expandable ? getChildren() : null,
+    getKey: group.getKey,
+    renderPrimaryCell: group.renderCell,
+    queryString: getQuery(keypath)
+  }
+}
+
 
 
 /**

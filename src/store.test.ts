@@ -2,6 +2,9 @@ import {expect} from 'chai'
 import * as Actions from './actions'
 import * as Store from './store' 
 
+const renderCell = () => 'foo'
+const getKey = () => 'foo'
+
 describe('toggle-disclosed', () => {
   it('should set undisclosed node state to disclosed', () => {
     const state = dispatchActions(
@@ -36,16 +39,19 @@ describe('set-config', () => {
 
 describe('tree state', () => {
   it('should merge configuration with disclosure state', () => {
-    const renderCell = () => 'foo'
-    const getKey = () => 'foo'
-    
     const state = dispatchActions(
       Actions.setConfig({
         reports: [
           {
             title: 'My Report',
-            datasourceID: 'fooDatasource',
-            columns: [],
+            datasourceID: 'ds',
+            columns: [
+              {
+                title: '',
+                fieldID: 'val',
+                renderCell
+              }
+            ],
             groups: [
               {
                 title: 'first',
@@ -63,20 +69,20 @@ describe('tree state', () => {
           }
         ]
       }),
-      Actions.toggleDisclosed(['a'])
+      Actions.toggleDisclosed(['a1'])
     )
     
     expect(Store.selectTreeState(state, {reportIndex: 0})).to.eql({
       values: undefined,
       renderPrimaryCell: renderCell,
       getKey,
-      queryString: '',
+      queryString: `SELECT 'a', SUM('val') FROM ds GROUP BY 'a'`,
       children: {
-        a: {
+        a1: {
           values: undefined,
           renderPrimaryCell: renderCell,
           getKey,
-          queryString: '',
+          queryString: `SELECT 'b', SUM('val') FROM ds WHERE 'a' = 'a1' GROUP BY 'b'`,
           children: null
         }
       }
