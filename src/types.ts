@@ -19,6 +19,29 @@ export type TreeNode = {
 }
 
 
+/** Represent an sql aggregate query **/
+export type Query = {
+  datasourceID: string,
+  filter: Filter[],
+  groupBy: string[],
+  sum?: string[]
+};
+
+/** Representation of a sql query 'WHERE' condition */
+export type Filter = {
+  type: FilterType,
+  lhs: string, 
+  rhs: RowValue|RowValue[]
+}
+
+/** SQL filter operator */
+export enum FilterType {
+  equals,
+  containsIgnoringCase,
+  in
+}
+
+
 
 /** Row data type */
 export type RowData = {[index: string]: RowValue}
