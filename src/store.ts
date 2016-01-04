@@ -1,5 +1,9 @@
+import {createSelector} from 'reselect'
+
+import * as SQL from './sql'
 import * as Actions from './actions'
-import {ConfigDescriptor} from './types'
+import {ConfigDescriptor, GroupDescriptor, TreeNode, FilterType} from './types'
+import {mapDictionary} from './util'
 
 export type AppState = {
   disclosure: DisclosureState,
@@ -12,6 +16,38 @@ export const reduceApp = createReducer(null, (prev: AppState, action: Actions.An
 }))
 
 
+/**
+ * TREE STATE
+ */
+
+export const selectTreeState = createSelector(
+  selectDisclosure, selectConfig, selectReportIndex,
+  
+  (disclosue: DisclosureState, config: ConfigDescriptor, reportIndex: number) => {
+    const report = config.reports[reportIndex]
+    return getNode(disclosue, [], report.groups, report.datasourceID)
+  }
+)
+
+function getNode(disclosure: DisclosureState, keypath: string[], groups: GroupDescriptor[], datasource: string): TreeNode {
+  const [group, ...restGroups] = groups
+  
+  const expandable = restGroups.length > 0
+  const getChildren = () =>
+    mapDictionary(disclosure, (child, key) => 
+      getNode(child, [...keypath, key], restGroups, datasource)
+    )
+  
+  return {
+    values: undefined,
+    children: expandable ? getChildren() : null,
+    getKey: group.getKey,
+    renderPrimaryCell: group.renderCell,
+    queryString: ''
+  }
+}
+
+
 
 /**
  * CONFIG STATE
@@ -19,6 +55,10 @@ export const reduceApp = createReducer(null, (prev: AppState, action: Actions.An
 
 export function selectConfig(state: AppState): ConfigDescriptor {
   return state.config
+}
+
+export function selectReportIndex(_: {}, props: {reportIndex: number}): number {
+  return props.reportIndex
 }
 
 const reduceReportConfig = createReducer<ConfigDescriptor>({reports: []}, (prev, action) => {

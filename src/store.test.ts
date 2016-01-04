@@ -34,6 +34,56 @@ describe('set-config', () => {
   })
 })
 
+describe('tree state', () => {
+  it('should merge configuration with disclosure state', () => {
+    const renderCell = () => 'foo'
+    const getKey = () => 'foo'
+    
+    const state = dispatchActions(
+      Actions.setConfig({
+        reports: [
+          {
+            title: 'My Report',
+            datasourceID: 'fooDatasource',
+            columns: [],
+            groups: [
+              {
+                title: 'first',
+                fieldID: 'a',
+                renderCell,
+                getKey
+              },
+              {
+                title: 'second',
+                fieldID: 'b',
+                renderCell,
+                getKey
+              }
+            ]
+          }
+        ]
+      }),
+      Actions.toggleDisclosed(['a'])
+    )
+    
+    expect(Store.selectTreeState(state, {reportIndex: 0})).to.eql({
+      values: undefined,
+      renderPrimaryCell: renderCell,
+      getKey,
+      queryString: '',
+      children: {
+        a: {
+          values: undefined,
+          renderPrimaryCell: renderCell,
+          getKey,
+          queryString: '',
+          children: null
+        }
+      }
+    })
+  })
+})
+
 function dispatchActions(...actions: Actions.AnyAction[]) : Store.AppState {
   const initAction: any = {}
   return actions.reduce(Store.reduceApp, Store.reduceApp(undefined, initAction))
