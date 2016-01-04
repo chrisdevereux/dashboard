@@ -79,6 +79,12 @@ export type GroupDescriptor = {
   /** User-displayed column title */
   title: string,
   
+  /** Datasource field ID */
+  fieldID: string,
+  
+  /** Return a unique ID (unique within the current node) for a child row */
+  getKey: (data: RowData) => string,
+  
   /** Given a data row, return the appropriate cell content for the column */
   renderCell: (data: RowData) => React.ReactNode
 }
@@ -87,6 +93,9 @@ export type GroupDescriptor = {
 export type ColumnDescriptor = {
   /** User-displayed column title */
   title: string,
+  
+  /** Datasource field ID */
+  fieldID: string,
   
   /** Given a data row, return the appropriate cell content for the column */
   renderCell: (data: RowData) => React.ReactNode

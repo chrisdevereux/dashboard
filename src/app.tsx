@@ -13,8 +13,8 @@ class App extends React.Component<{}, {data: TreeNode}> {
   render() {
     return (
       <TreeView data={this.state.data} onDisclosureChange={this.toggleDisplayed}>
-        <Column title='Title' renderCell={(data: RowData) => String(data['title'])}/>
-        <Column title='Value' renderCell={(data: RowData) => String(data['value'])}/>
+        <Column fieldID='foo' title='Title' renderCell={(data: RowData) => String(data['title'])}/>
+        <Column fieldID='foo' title='Value' renderCell={(data: RowData) => String(data['value'])}/>
       </TreeView> 
     )
   }

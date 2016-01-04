@@ -30,8 +30,8 @@ describe("TreeView", () => {
     }
     const tree = (
       <TreeView data={data} onDisclosureChange={() => {}}>
-        <Column title='Title' renderCell={data => String(data['title'])}/>,
-        <Column title='Value' renderCell={data => String(data['val'])}/>
+        <Column fieldID='A' title='Title' renderCell={data => String(data['title'])}/>,
+        <Column fieldID='B' title='Value' renderCell={data => String(data['val'])}/>
       </TreeView> 
     )
     
