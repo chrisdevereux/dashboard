@@ -28,7 +28,7 @@ export function selectReportIndex(_: {}, props: {reportIndex: number}): number {
   return props.reportIndex
 }
 
-const reduceReportConfig = createReducer<ConfigDescriptor>({reports: []}, (prev, action) => {
+const reduceReportConfig = createReducer<ConfigDescriptor>(null, (prev, action) => {
   if (Actions.isSetConfig(action)) {
     return action.config
     
@@ -100,7 +100,11 @@ export const selectQueryProvider = createSelector(
   selectConfig, selectReportIndex,
   
   (config, reportIndex) => (keypath: string[]) => {
+    if (!config) return null
+    
     const report = config.reports[reportIndex]
+    if (!report) return null
+    
     const parentGroups = report.groups.slice(0, keypath.length)
     const group = report.groups[keypath.length]
     
@@ -127,7 +131,11 @@ export const selectTreeState = createSelector(
   selectDisclosure, selectConfig, selectReportIndex, selectQueryProvider,
   
   (disclosue: DisclosureState, config: ConfigDescriptor, reportIndex: number, getQuery: QueryProvider) => {
+    if (!config || !getQuery) return null
+    
     const report = config.reports[reportIndex]
+    if (!report) return null
+    
     return getNode(disclosue, [], report.groups, report.datasourceID, getQuery)
   }
 )

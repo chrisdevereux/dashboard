@@ -38,6 +38,11 @@ describe('set-config', () => {
 })
 
 describe('tree state', () => {
+  it('should return null prior to config loading', () => {
+    const state = dispatchActions()
+    expect(Store.selectTreeState(state, {reportIndex: 0})).to.be.null
+  })
+  
   it('should merge configuration with disclosure state', () => {
     const state = dispatchActions(
       Actions.setConfig({
