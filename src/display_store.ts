@@ -23,6 +23,8 @@ type Thunk = (dispatch: (action: DisplayStoreAction) => void, getState: () => Di
  */ 
 export function shapeChanged(shape: TreeNode, resolveQuery: QueryResolver): Thunk {
   return (dispatch, getState) => {
+    if (!shape) return Promise.resolve()
+    
     dispatch({type: 'shape-changed', shape})
     
     const todo = selectUnsubmittedQueries(getState()).map(queryString => {

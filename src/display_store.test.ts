@@ -6,6 +6,13 @@ import {RowData, QueryResolver} from './types'
 import * as Store from './display_store' 
 
 describe('update-shape', () => {
+  it('should do nothing when tree shape is null', () => {
+    const store = createStore(Store.reducer, applyMiddleware(thunk))
+    return store.dispatch(
+      Store.shapeChanged(null, stubQuery([{}, {}]))
+    )
+  })
+  
   it('should update display tree shape when query submitted, then data when query resolves', () => {
     const store = createStore(Store.reducer, applyMiddleware(thunk))
     const resolveQuery = store.dispatch(
