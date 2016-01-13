@@ -1,6 +1,7 @@
 import {ConfigDescriptor, ReportDescriptor, GroupDescriptor, ColumnDescriptor} from './types'
 
 export type ConfigFile = {
+  apiKey: string,
   reports: ReportSection[],
   datasources: {[index: string]: string}
 }
@@ -19,6 +20,11 @@ type ColumnSection = {
 
 export default function loadConfig(file: ConfigFile): ConfigDescriptor {
   assert(
+    typeof file.apiKey === 'string',
+    "Expected .apiKey property to contain a Google API key authorising access to the Fusion Tables API (as defined in the Google developer console)",
+    file
+  )
+  assert(
     Array.isArray(file.reports),
     "Expected .reports property to contain list of reports",
     file
@@ -30,6 +36,7 @@ export default function loadConfig(file: ConfigFile): ConfigDescriptor {
   )
   
   return {
+    apiKey: file.apiKey,
     reports: file.reports.map(loadReports) 
   }
   

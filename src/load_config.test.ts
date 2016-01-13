@@ -4,6 +4,7 @@ import loadConfig from './load_config'
 describe('loadConfig', () => {
   it('should load config', () => {
     loadConfig({
+      apiKey: 'blub',
       datasources: {
         a: 'ds-a'
       },

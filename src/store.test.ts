@@ -29,9 +29,10 @@ describe('toggle-disclosed', () => {
 describe('set-config', () => {
   it('should set config', () => {
     const state = dispatchActions(
-      Actions.setConfig({reports: []})
+      Actions.setConfig({apiKey: '', reports: []})
     )
     expect(Store.selectConfig(state)).to.eql({
+      apiKey: '',
       reports: []
     })
   })
@@ -46,6 +47,7 @@ describe('tree state', () => {
   it('should merge configuration with disclosure state', () => {
     const state = dispatchActions(
       Actions.setConfig({
+        apiKey: '',
         reports: [
           {
             title: 'My Report',

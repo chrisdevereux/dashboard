@@ -28,6 +28,8 @@ export function selectReportIndex(_: {}, props: {reportIndex: number}): number {
   return props.reportIndex
 }
 
+export const selectAPIKey = createSelector(selectConfig, config => config && config.apiKey)
+
 const reduceReportConfig = createReducer<ConfigDescriptor>(null, (prev, action) => {
   if (Actions.isSetConfig(action)) {
     return action.config
@@ -157,7 +159,6 @@ function getNode(disclosure: DisclosureState, keypath: string[], groups: GroupDe
     queryString: getQuery(keypath)
   }
 }
-
 
 
 /**

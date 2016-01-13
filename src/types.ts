@@ -56,6 +56,7 @@ export type QueryResolver = (query: string) => Promise<RowData[]>
 
 /** Display & data properties of the entire presentation **/
 export type ConfigDescriptor = {
+  apiKey: string,
   reports: ReportDescriptor[]
 } 
 
