@@ -43,22 +43,29 @@ export default class TreeView extends React.Component<TreeViewProps, {}> {
   }
   
   renderChildren(node: TreeNode, keypath: string[]): React.ReactNode[] {
-    const nodes = node.values.map((row: RowData) =>
-      this.renderNode(row, node, keypath)
-    )
-    
-    return nodes.concat.apply([], nodes)
+    if (node.values) {
+      const nodes = node.values.map((row: RowData) =>
+        this.renderNode(row, node, keypath)
+      )
+      
+      return nodes.concat.apply([], nodes)
+
+    } else {
+      return []
+    }
   }
   
-  disclosureStateFor(key: string, node: TreeNode): DisclosureState {
-    if (node.children === null) {
-      return DisclosureState.Leaf
-      
-    } else if (node.children[key]) {
+  disclosureStateFor(key: string, parent: TreeNode): DisclosureState {
+    if (parent.children === null) return DisclosureState.Leaf
+    
+    const node = parent.children[key]
+    if (!node) return DisclosureState.Undisclosed
+    
+    if (node.values) {
       return DisclosureState.Disclosed
-      
+
     } else {
-      return DisclosureState.Undisclosed
+      return DisclosureState.Loading
     }
   }
 }
@@ -138,6 +145,7 @@ export class Row extends React.Component<RowProps, {}> {
   disclosureIndicator(): React.ReactNode {
     switch (this.props.disclosureState) {
     case DisclosureState.Disclosed: return <span className='disclosed-indicator' style={{width: '1em'}}/>
+    case DisclosureState.Loading: return <span className='disclosed-indicator' style={{width: '1em'}}/>
     case DisclosureState.Undisclosed: return <span className='undisclosed-indicator' style={{width: '1em'}}/>
     case DisclosureState.Leaf: return null
     }
@@ -174,5 +182,6 @@ type RowProps = {
 export enum DisclosureState {
   Disclosed,
   Undisclosed,
+  Loading,
   Leaf
 }
