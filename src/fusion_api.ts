@@ -13,8 +13,8 @@ export function fusionAPIClient(apiKey: string): QueryResolver {
 }
 
 export function decodeResponse(response: any): RowData[] {
-  const columns: string[] = response.columns
-  const rows: RowValue[][] = response.rows
+  const columns: string[] = response.columns || []
+  const rows: RowValue[][] = response.rows || []
   
   return rows.map(rowIn => {
     const rowOut: RowData = {}
