@@ -8,20 +8,20 @@ const getKey = () => 'foo'
 describe('toggle-disclosed', () => {
   it('should set undisclosed node state to disclosed', () => {
     const state = dispatchActions(
-      Actions.toggleDisclosed(['foo', 'bar'])
+      Actions.toggleDisclosed(['"foo"', '"bar"'])
     )
     expect(Store.selectDisclosure(state)).to.eql({
-      foo: {bar: {}}
+      '"foo"': {'"bar"': {}}
     })
   })
   
   it('should set disclosed node state to undisclosed', () => {
     const state = dispatchActions(
-      Actions.toggleDisclosed(['foo', 'bar']),
-      Actions.toggleDisclosed(['foo', 'bar'])
+      Actions.toggleDisclosed(['"foo"', '"bar"']),
+      Actions.toggleDisclosed(['"foo"', '"bar"'])
     )
     expect(Store.selectDisclosure(state)).to.eql({
-      foo: {bar: undefined}
+      '"foo"': {'"bar"': undefined}
     })
   })
 })
@@ -76,7 +76,7 @@ describe('tree state', () => {
           }
         ]
       }),
-      Actions.toggleDisclosed(['a1'])
+      Actions.toggleDisclosed(['"a1"'])
     )
     
     expect(Store.selectTreeState(state, {reportIndex: 0})).to.eql({
@@ -85,7 +85,7 @@ describe('tree state', () => {
       getKey,
       queryString: `SELECT 'a', SUM('val') FROM ds GROUP BY 'a'`,
       children: {
-        a1: {
+        '"a1"': {
           values: undefined,
           renderPrimaryCell: renderCell,
           getKey,

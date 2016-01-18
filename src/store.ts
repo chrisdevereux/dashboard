@@ -115,7 +115,7 @@ export const selectQueryProvider = createSelector(
       filter: parentGroups.map((g, i) => ({
         type: FilterType.equals,
         lhs: g.fieldID,
-        rhs: keypath[i]
+        rhs: JSON.parse(keypath[i])
       })),
       sum: report.columns.map(col => col.fieldID),
       groupBy: [group.fieldID] 
