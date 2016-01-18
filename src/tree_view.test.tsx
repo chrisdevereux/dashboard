@@ -3,46 +3,48 @@ import {expect} from 'chai'
 import {createRenderer} from 'react-addons-test-utils'
 
 import TreeView, {Column, Row, DisclosureState} from './tree_view'
-import {TreeNode} from './types'
+import {TreeNode, RowData} from './types'
 
 describe("TreeView", () => {
   it('should render', () => {
+    const getData = (data: RowData) => String(data.groupBy['title'])
+    
     const data: TreeNode = {
       // Root: Branch node with data loaded.
       values: [
-        {title: 'A', val: 1}, 
-        {title: 'B', val: 2}, 
-        {title: 'C', val: 3}
+        {groupBy: {title: 'A'}, sum: {val: 1}},
+        {groupBy: {title: 'B'}, sum: {val: 2}},
+        {groupBy: {title: 'C'}, sum: {val: 3}}
       ],
       queryString: '',
-      renderPrimaryCell: data => data['title'],
-      getKey: data => String(data['title']),
+      renderPrimaryCell: getData,
+      getKey: getData,
       children: {
         A: {
           // Child A: Expanded leaf node with data loaded
           values: [
-            {title: 'A1', val: 1},
-            {title: 'A2', val: 2}    
+            {groupBy: {title: 'A1'}, sum: {val: 1}},
+            {groupBy: {title: 'A2'}, sum: {val: 2}}
           ],
-          renderPrimaryCell: data => data['title'],
+          renderPrimaryCell: getData,
           queryString: '',
-          getKey: data => String(data['title']),
+          getKey: getData,
           children: null
         },
         B: {
           // Child B: Expanded leaf node with data not loaded
           values: null,
-          renderPrimaryCell: data => data['title'],
+          renderPrimaryCell: getData,
           queryString: '',
-          getKey: data => String(data['title']),
+          getKey: getData,
           children: null
         }
       }
     }
     const tree = (
       <TreeView data={data} onDisclosureChange={() => {}}>
-        <Column fieldID='A' title='Title' renderCell={data => String(data['title'])}/>,
-        <Column fieldID='B' title='Value' renderCell={data => String(data['val'])}/>
+        <Column fieldID='A' title='Title' renderCell={getData}/>,
+        <Column fieldID='B' title='Value' renderCell={getData}/>
       </TreeView> 
     )
     
@@ -58,11 +60,11 @@ describe("TreeView", () => {
           </tr>
         </thead>
         <tbody>
-          <Row disclosureState={DisclosureState.Disclosed} keypath={['A']} onClick={() => {}} columns={tree.props.children} data={data.values[0]} renderPrimaryCell={data.renderPrimaryCell}/>
-          <Row disclosureState={DisclosureState.Leaf} keypath={['A', 'A1']} onClick={() => {}} columns={tree.props.children} data={data.children['A'].values[0]} renderPrimaryCell={data.renderPrimaryCell}/>
-          <Row disclosureState={DisclosureState.Leaf} keypath={['A', 'A2']} onClick={() => {}} columns={tree.props.children} data={data.children['A'].values[1]} renderPrimaryCell={data.renderPrimaryCell}/>
-          <Row disclosureState={DisclosureState.Loading} keypath={['B']} onClick={() => {}} columns={tree.props.children} data={data.values[1]} renderPrimaryCell={data.renderPrimaryCell}/>
-          <Row disclosureState={DisclosureState.Undisclosed} keypath={['C']} onClick={() => {}} columns={tree.props.children} data={data.values[2]} renderPrimaryCell={data.renderPrimaryCell}/>
+          <Row disclosureState={DisclosureState.Disclosed} keypath={['A']} onClick={() => {}} columns={tree.props.children} data={data.values[0]} renderPrimaryCell={getData}/>
+          <Row disclosureState={DisclosureState.Leaf} keypath={['A', 'A1']} onClick={() => {}} columns={tree.props.children} data={data.children['A'].values[0]} renderPrimaryCell={getData}/>
+          <Row disclosureState={DisclosureState.Leaf} keypath={['A', 'A2']} onClick={() => {}} columns={tree.props.children} data={data.children['A'].values[1]} renderPrimaryCell={getData}/>
+          <Row disclosureState={DisclosureState.Loading} keypath={['B']} onClick={() => {}} columns={tree.props.children} data={data.values[1]} renderPrimaryCell={getData}/>
+          <Row disclosureState={DisclosureState.Undisclosed} keypath={['C']} onClick={() => {}} columns={tree.props.children} data={data.values[2]} renderPrimaryCell={getData}/>
         </tbody>
       </table>
     )

@@ -76,8 +76,8 @@ export default function loadConfig(file: ConfigFile): ConfigDescriptor {
     return {
       title: section.title,
       fieldID: section.fieldID,
-      getKey: (row) => JSON.stringify(row[section.fieldID]),
-      renderCell: (row) => String(row[section.fieldID])
+      getKey: (row) => JSON.stringify(row.groupBy[section.fieldID]),
+      renderCell: (row) => String(row.groupBy[section.fieldID])
     }
   }
   
@@ -87,7 +87,7 @@ export default function loadConfig(file: ConfigFile): ConfigDescriptor {
     return {
       title: section.title,
       fieldID: section.fieldID,
-      renderCell: (row) => String(row[section.fieldID])
+      renderCell: (row) => String(row.sum[section.fieldID])
     }
   }
 }

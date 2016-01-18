@@ -5,14 +5,14 @@ describe('fusion api', () => {
   describe('.decodeResponse()', () => {
     it('should decode the response', () => {
       expect(Fusion.decodeResponse({
-        columns: ['a', 'b'],
+        columns: ['a', 'SUM(b)'],
         rows: [
           [1, 2],
           [3, 4]
         ]
       })).to.eql([
-        {a: 1, b: 2},
-        {a: 3, b: 4}
+        {groupBy: {a: 1}, sum: {b: 2}},
+        {groupBy: {a: 3}, sum: {b: 4}}
       ])
     })
   })

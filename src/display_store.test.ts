@@ -9,7 +9,7 @@ describe('update-shape', () => {
   it('should do nothing when tree shape is null', () => {
     const store = createStore(Store.reducer, applyMiddleware(thunk))
     return store.dispatch(
-      Store.shapeChanged(null, stubQuery([{}, {}]))
+      Store.shapeChanged(null, stubQuery)
     )
   })
   
@@ -22,7 +22,7 @@ describe('update-shape', () => {
         queryString: 'foo',
         renderPrimaryCell: undefined,
         getKey: undefined
-      }, stubQuery([{}, {}]))
+      }, stubQuery)
     );
     
     expect(Store.selectDisplayTree(store.getState())).to.eql({
@@ -35,7 +35,7 @@ describe('update-shape', () => {
       
     return resolveQuery.then(() => {
       expect(Store.selectDisplayTree(store.getState())).to.eql({
-        values: [{}, {}],
+        values: stubData,
         children: {},
         queryString: 'foo',
         renderPrimaryCell: undefined,
@@ -45,6 +45,11 @@ describe('update-shape', () => {
   })
 })
 
-function stubQuery(data: RowData[]): QueryResolver {
-  return (query) => Promise.resolve(data)  
-}
+const stubData: RowData[] = [ 
+  {
+    groupBy: {},
+    sum: {}
+  }
+]
+
+const stubQuery: QueryResolver = () => Promise.resolve(stubData)

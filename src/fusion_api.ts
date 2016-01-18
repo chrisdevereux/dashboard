@@ -17,10 +17,21 @@ export function decodeResponse(response: any): RowData[] {
   const rows: RowValue[][] = response.rows || []
   
   return rows.map(rowIn => {
-    const rowOut: RowData = {}
+    const rowOut: RowData = {
+      groupBy: {},
+      sum: {}
+    }
     
     columns.forEach((key, i) => {
-      rowOut[key] = rowIn[i]
+      const sumMatch = key.match(/SUM\((.*)\)/)
+      
+      if (sumMatch) {
+        const [, key] = sumMatch
+        rowOut.sum[key] = rowIn[i]
+        return
+      }
+        
+      rowOut.groupBy[key] = rowIn[i]
     })
     
     return rowOut

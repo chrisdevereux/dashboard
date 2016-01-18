@@ -44,7 +44,10 @@ export enum FilterType {
 
 
 /** Row data type */
-export type RowData = {[index: string]: RowValue}
+export type RowData = {
+  groupBy: {[index: string]: RowValue},
+  sum: {[index: string]: RowValue}
+}
 
 /** Row data variant */
 export type RowValue = string|number|Date
