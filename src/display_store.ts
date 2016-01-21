@@ -115,13 +115,14 @@ function populateData(shape: TreeNode, data: DataStore): TreeNode {
 function populateUnsubmittedQueries(shape: TreeNode, data: DataStore): string[] {
   const childQueries = Object.keys(shape.children || {})
     .map(key => populateUnsubmittedQueries(shape.children[key], data))
-    .map(values => [].concat.apply([], values))
+
+  const flattenedChildren = [].concat.apply([], childQueries)
   
   if (shape.queryString in data) {
-    return childQueries
+    return flattenedChildren
       
   } else {
-    return [shape.queryString, ...childQueries]
+    return [shape.queryString, ...flattenedChildren]
   }
 }
 

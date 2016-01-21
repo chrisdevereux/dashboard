@@ -45,6 +45,43 @@ describe('update-shape', () => {
   })
 })
 
+describe('selectUnsubmittedQueries', () => {
+  it('should return query strings with no corresponding data entry', () => {
+    const state: Store.DisplayState = {
+      data: {
+        'resolved': [],
+        'pending': null
+      },
+      shape: {
+        values: null,
+        queryString: 'resolved',
+        renderPrimaryCell: undefined,
+        getKey: undefined,
+        children: {
+          a: {
+            values: null,
+            queryString: 'unsubmitted',
+            renderPrimaryCell: undefined,
+            getKey: undefined,
+            children: null
+          },
+          b: {
+            values: null,
+            queryString: 'pending',
+            renderPrimaryCell: undefined,
+            getKey: undefined,
+            children: null
+          }
+        },
+      }
+    }
+    
+    expect(Store.selectUnsubmittedQueries(state)).to.eql([
+      'unsubmitted'
+    ])
+  })
+})
+
 const stubData: RowData[] = [ 
   {
     groupBy: {},
