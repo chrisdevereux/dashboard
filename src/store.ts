@@ -70,7 +70,10 @@ const reduceDisclosure: Reducer<DisclosureState> = createReducer<DisclosureState
       const key = action.keypath[0]
       
       if (prev[key]) {
-        return Object.assign({}, prev, {[key]: undefined})
+        const next = Object.assign({}, prev)
+        delete next[key]
+        
+        return next
         
       } else {
         return Object.assign({}, prev, {[key]: {}})

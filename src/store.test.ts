@@ -21,7 +21,7 @@ describe('toggle-disclosed', () => {
       Actions.toggleDisclosed(['"foo"', '"bar"'])
     )
     expect(Store.selectDisclosure(state)).to.eql({
-      '"foo"': {'"bar"': undefined}
+      '"foo"': {}
     })
   })
 })
