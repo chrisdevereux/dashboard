@@ -37,6 +37,7 @@ export interface Filter {
 /** SQL filter operator */
 export enum FilterType {
   equals,
+  notEqual,
   containsIgnoringCase,
   in
 }

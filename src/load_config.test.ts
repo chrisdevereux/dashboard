@@ -27,6 +27,7 @@ describe('loadConfig', () => {
           globalFilters: [
             {field: 'foo', value: 1},
             {field: 'foo', type: 'equals', value: '2'},
+            {field: 'foo', type: 'not', value: '2'},
             {field: 'foo', type: 'in', value: [2]}
           ]
         }

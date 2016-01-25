@@ -125,6 +125,7 @@ export default function loadConfig(file: ConfigFile): ConfigDescriptor {
 
     switch (type) {
       case 'equals': return FilterType.equals
+      case 'not': return FilterType.notEqual
       case 'contains': return FilterType.containsIgnoringCase
       case 'in': return FilterType.in
       default: throw Error(

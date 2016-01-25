@@ -34,6 +34,8 @@ export function encodeWhereClause({filter}: Query): string {
       return `${enquote(f.lhs)} CONTAINS IGNORING CASE ${encodeValue(f.rhs)}`
     case FilterType.in:
       return `${enquote(f.lhs)} IN ${encodeValue(f.rhs)}`
+    case FilterType.notEqual:
+      return `${enquote(f.lhs)} NOT EQUAL TO ${encodeValue(f.rhs)}`
     }
   });
 

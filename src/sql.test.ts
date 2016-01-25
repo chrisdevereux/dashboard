@@ -18,10 +18,11 @@ describe('encodeSQL', () => {
       filter: [
         {type: FilterType.equals, lhs: 'a', rhs: 'foo'},
         {type: FilterType.in, lhs: 'a', rhs: 'foo'},
-        {type: FilterType.containsIgnoringCase, lhs: 'a', rhs: 'foo'}
+        {type: FilterType.containsIgnoringCase, lhs: 'a', rhs: 'foo'},
+        {type: FilterType.notEqual, lhs: 'a', rhs: 'foo'}
       ],
       groupBy: ['a']
-    })).to.eql(`SELECT 'a' FROM source WHERE 'a' = 'foo' AND 'a' IN 'foo' AND 'a' CONTAINS IGNORING CASE 'foo' GROUP BY 'a'`)
+    })).to.eql(`SELECT 'a' FROM source WHERE 'a' = 'foo' AND 'a' IN 'foo' AND 'a' CONTAINS IGNORING CASE 'foo' AND 'a' NOT EQUAL TO 'foo' GROUP BY 'a'`)
   })  
   
   it('should encode sum clause', () => {
