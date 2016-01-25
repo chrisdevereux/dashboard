@@ -1,10 +1,26 @@
-table.pivot {
-  @header-color: #fafafa;
-  @border-color: rgba(0,0,0,.07);
-  
+@header-color: #fafafa;
+@border-color: rgba(0,0,0,.07);
+@link-color: #008cff;
+@body-text-color: #364149;
+@header-text-color: lighten(black, 20%);
+
+body {
+  color: @body-text-color;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: @link-color;
+}
+
+table.pivot {  
   width: 100%;
-  font-weight: 300;
-  color: #364149;
+  font-weight: 30;
   
   th {
     text-align: left;
@@ -24,19 +40,9 @@ table.pivot {
     background-color: darken(@header-color, 1%);
     border-right: solid @border-color 1px;
     
-    color: lighten(black, 20%);
+    color: @header-text-color;
     width: 10em;
     max-width: 25%;
-    
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
-    
-    a:hover {
-      text-decoration: underline;
-      color: #008cff;
-    }
   }
 }
 
