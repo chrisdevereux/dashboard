@@ -1,5 +1,5 @@
 import * as React from 'react'
-import{createStore, applyMiddleware, Store as ReduxStore} from 'redux'
+import {createStore, applyMiddleware, Store as ReduxStore} from 'redux'
 import thunk = require('redux-thunk')
 import {connect, Provider} from 'react-redux'
 import logger = require('redux-logger')
@@ -10,16 +10,24 @@ import * as Actions from './actions'
 import * as DisplayStore from './display_store'
 import * as Fusion from './fusion_api'
 import TreeView, {Column} from './tree_view'
-import {TreeNode, RowData} from './types'
+import {TreeNode, ColumnDescriptor, RowData, QueryResolver} from './types'
 
 type ReportProps = {
+  // Store views
   treeState: TreeNode,
-  toggleDisclosed: typeof Actions.toggleDisclosed
-  apiKey: string
+  columns: ColumnDescriptor[],
+  apiKey: string,
+  
+  // Action creators
+  toggleDisclosed: typeof Actions.toggleDisclosed,
+  
+  // Passthrough
+  getQueryResolver?: (apiKey: string) => QueryResolver
 }
 
 const selectors: any = {
   treeState: Store.selectTreeState,
+  columns: Store.selectColumns,
   apiKey: Store.selectAPIKey
 }
 
@@ -27,16 +35,20 @@ const actionCreators: any = {
   toggleDisclosed: Actions.toggleDisclosed
 }
 
-class Report extends React.Component<ReportProps, {data: TreeNode}> {
+export class ReportView extends React.Component<ReportProps, {data: TreeNode}> {
+  static defaultProps = {
+    getQueryResolver: Fusion.fusionAPIClient
+  }
+  
   displayStore: ReduxStore
 
   componentWillMount() {
     // Bind event handlers
-    this.handleDisplayStoreChange = this.handleDisplayStoreChange.bind(this)
+    this.handleDisplayStateChange = this.handleDisplayStateChange.bind(this)
     
     // Display Store
     this.displayStore = createStore(DisplayStore.reducer, applyMiddleware(thunk, logger()))
-    this.displayStore.subscribe(this.handleDisplayStoreChange)
+    this.displayStore.subscribe(this.handleDisplayStateChange)
     this.updateDisplayStore(this.props)
 
     // Initial state    
@@ -48,31 +60,41 @@ class Report extends React.Component<ReportProps, {data: TreeNode}> {
   }
 
   render() {
-    if (this.state.data) {
+    if (this.state.data && this.state.data.values) {
       return (
         <TreeView data={this.state.data} onDisclosureChange={this.props.toggleDisclosed}>
-          <Column fieldID='foo' title='Title' renderCell={(data: RowData) => 'todo'}/>
-          <Column fieldID='foo' title='Value' renderCell={(data: RowData) => 'todo'}/>
+          {this.props.columns.map((col, i) => <Column key={col.fieldID} {...col}/>)}
         </TreeView> 
       )
-
+      
     } else {
-      return <span>Loading</span>
+      return (
+        <TreeView
+          onDisclosureChange={null}
+          data={{
+            values: null,
+            getKey: () => null,
+            renderPrimaryCell: () => null,
+            children: {},
+            queryString: ''
+          }}
+        />
+      )
     }
   }
   
   updateDisplayStore({treeState, apiKey}: ReportProps) {
     this.displayStore.dispatch(
-      DisplayStore.shapeChanged(treeState, Fusion.fusionAPIClient(apiKey)) 
+      DisplayStore.shapeChanged(treeState, this.props.getQueryResolver(apiKey)) 
     )
   }
 
-  handleDisplayStoreChange() {
+  handleDisplayStateChange() {
     this.setState({
       data: DisplayStore.selectDisplayTree(this.displayStore.getState())
     })
   }
 }
 
-const route: any = connect(createStructuredSelector(selectors), actionCreators)(Report)
+const route: any = connect(createStructuredSelector(selectors), actionCreators)(ReportView)
 export default route

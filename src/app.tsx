@@ -23,7 +23,6 @@ enum LoadState {
 class App extends React.Component<{}, {loadState: LoadState}> {
   componentWillMount() {
     const url = decodeURIComponent(location.search.substr(1))
-    console.log(url)
     
     if (url.length > 0) {
       this.setState({loadState: LoadState.loading})
@@ -50,24 +49,11 @@ class App extends React.Component<{}, {loadState: LoadState}> {
   }
   
   render() {
-    switch (this.state.loadState) {
-      case LoadState.mising: {
-        return <span>Missing</span>
-      }
-      case LoadState.loading: {
-        return <span>Loading</span>
-      }
-      case LoadState.loaded: {
-        return (
-          <Provider store={store}>
-            <Report reportIndex={0}/>
-          </Provider>
-        )
-      }
-      case LoadState.error: {
-        return <span>Error</span>
-      }
-    }
+    return (
+      <Provider store={store}>
+        <Report reportIndex={0}/>
+      </Provider>
+    )
   }
 }
 
