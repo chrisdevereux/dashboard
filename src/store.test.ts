@@ -47,6 +47,28 @@ describe('set-report', () => {
   })
 })
 
+describe('report options', () => {
+  it('should return available reports', () => {
+    const state = dispatchActions(
+      Actions.setConfig({
+        apiKey: '',
+        reports: [
+          {
+            title: 'Foo',
+            datasourceID: '',
+            columns: [],
+            groups: []
+          }
+        ] 
+      })
+    )
+    
+    expect(Store.selectReportOptions(state)).to.eql([
+      {title: 'Foo', id: 0}
+    ])
+  })
+})
+
 describe('tree state', () => {
   it('should return null prior to config loading', () => {
     const state = dispatchActions()

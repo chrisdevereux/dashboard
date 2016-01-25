@@ -26,6 +26,12 @@ export function selectConfig(state: AppState): ConfigDescriptor {
   return state.config
 }
 
+export const selectReportOptions = createSelector(
+  selectConfig,
+  
+  config => config ? config.reports.map((r, i) => ({id: i, title: r.title})) : []
+)
+
 export const selectAPIKey = createSelector(selectConfig, config => config && config.apiKey)
 
 const reduceReportConfig = createReducer<ConfigDescriptor>(null, (prev, action) => {
@@ -39,7 +45,7 @@ const reduceReportConfig = createReducer<ConfigDescriptor>(null, (prev, action) 
 
 
 /**
- * ACTIVE REPORT STATE
+ * NAVIGATION STATE
  */
 
 export function selectReportIndex(state: AppState): number {
