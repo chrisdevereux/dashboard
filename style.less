@@ -6,6 +6,7 @@
 
 body {
   color: @body-text-color;
+  font-size: 10pt;
 }
 
 a {
@@ -17,10 +18,60 @@ a:hover {
   text-decoration: underline;
   color: @link-color;
 }
+    
+.nav-view {
+  > ul {
+    display: block;
+    background-color: rgba(0,0,0,.70);
+    
+    list-style: none;
+    font-size: 9pt;
+    
+    padding: 0;
+    margin: 0;
+    
+    li {
+      display: inline-block;
+      padding: 1em;
+      padding-bottom: 0;
+      padding-right: 2em;
+      text-align: center;
+    }
+    
+    a {
+      color: white;
+    }
+    
+    li.active a:hover {
+      text-decoration: inherit;
+    }
+    
+    .active-indicator {
+      display: inline-block;
+      position: relative;
+      bottom: -0.5em;
+      width: 0px;
+      height: 0px;
+      border-bottom: 1em solid white;
+      border-left: 1em solid transparent;
+      border-right: 1em solid transparent;
+      border-top: 0;
+    }
+    
+    li.inactive .active-indicator {
+      opacity: 0;
+    }
+    
+    .active-indicator-container {
+      text-align: center;
+    }
+  }
+}
 
 table.pivot {  
   width: 100%;
   font-weight: 30;
+  margin-top: 0.375em;
   
   th {
     text-align: left;
@@ -28,8 +79,7 @@ table.pivot {
     border-bottom: solid @border-color 1px;
     
     font-weight: 600;
-    font-size: 10pt;
-    padding: 0.3em;
+    padding: 0.375em;
   }
   
   td {

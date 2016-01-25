@@ -54,10 +54,13 @@ export class NavItem extends React.Component<NavItemProps, {}> {
   
   render() {
     return (
-      <li>
+      <li className={this.props.active ? 'active' : 'inactive'}>
         <a href='#' onClick={this.handleClick}>
           {this.props.title}
         </a>
+        <div className='active-indicator-container'>
+          <div className='active-indicator'/>
+        </div>
       </li>
     )
   }
