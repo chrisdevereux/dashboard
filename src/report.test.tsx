@@ -12,6 +12,9 @@ describe("ReportView", () => {
   it('should render with null columns', () => {
     const tree = (
       <ReportView
+        reportIndex={0}
+        reportOptions={[]}
+        navigateReport={null}
         apiKey='xyz'
         columns={null}
         toggleDisclosed={null}
@@ -33,6 +36,9 @@ describe("ReportView", () => {
   it('should render with columns', () => {
     const tree = (
       <ReportView
+        reportIndex={0}
+        reportOptions={[]}
+        navigateReport={null}
         apiKey='xyz'
         columns={[]}
         toggleDisclosed={null}

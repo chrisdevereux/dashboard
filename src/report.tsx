@@ -9,6 +9,7 @@ import * as Store from './store'
 import * as Actions from './actions'
 import * as DisplayStore from './display_store'
 import * as Fusion from './fusion_api'
+import Nav, {NavOption} from './nav_view'
 import TreeView, {Column} from './tree_view'
 import {TreeNode, ColumnDescriptor, RowData, QueryResolver} from './types'
 
@@ -17,9 +18,12 @@ type ReportProps = {
   treeState: TreeNode,
   columns: ColumnDescriptor[],
   apiKey: string,
+  reportIndex: number,
+  reportOptions: NavOption[],
   
   // Action creators
   toggleDisclosed: typeof Actions.toggleDisclosed,
+  navigateReport: typeof Actions.setReport,
   
   // Passthrough
   getQueryResolver?: (apiKey: string) => QueryResolver
@@ -28,11 +32,14 @@ type ReportProps = {
 const selectors: any = {
   treeState: Store.selectTreeState,
   columns: Store.selectColumns,
-  apiKey: Store.selectAPIKey
+  apiKey: Store.selectAPIKey,
+  reportIndex: Store.selectReportIndex,
+  reportOptions: Store.selectReportOptions
 }
 
 const actionCreators: any = {
-  toggleDisclosed: Actions.toggleDisclosed
+  toggleDisclosed: Actions.toggleDisclosed,
+  navigateReport: Actions.setReport
 }
 
 export class ReportView extends React.Component<ReportProps, {data: TreeNode}> {
@@ -58,8 +65,17 @@ export class ReportView extends React.Component<ReportProps, {data: TreeNode}> {
   componentWillReceiveProps(newProps: ReportProps) {
     this.updateDisplayStore(newProps)
   }
-
+  
   render() {
+    const {reportIndex, reportOptions, navigateReport} = this.props;
+    return (
+      <Nav value={reportIndex} options={reportOptions} onSelected={navigateReport}>
+        {this.renderTable()}
+      </Nav>
+    )
+  }
+
+  renderTable() {
     if (this.state.data && this.state.data.values) {
       return (
         <TreeView data={this.state.data} onDisclosureChange={this.props.toggleDisclosed}>

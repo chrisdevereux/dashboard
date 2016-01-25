@@ -20,23 +20,28 @@ enum LoadState {
   mising
 }
 
-class App extends React.Component<{}, {loadState: LoadState}> {
-  componentWillMount() {
-    const url = decodeURIComponent(location.search.substr(1))
-    
-    if (url.length > 0) {
-      this.setState({loadState: LoadState.loading})
+interface State {
+  loadState?: LoadState
+  reportIndex?: number
+}
 
-      http('get', url)
-        .then(this.loadConfig.bind(this))
-        .catch(this.handleConfigLoadFailed.bind(this))
-      
-    } else {
-      this.setState({loadState: LoadState.mising})
+class App extends React.Component<{}, State> {
+  componentWillMount() {
+    this.handleReportSelected = this.handleReportSelected.bind(this)
+    
+    this.state = {
+      loadState: LoadState.loading,
+      reportIndex: 0
     }
+    
+    this.loadConfig()
   }
   
-  loadConfig(req: XMLHttpRequest) {
+  handleReportSelected(reportIndex: number) {
+    this.setState({reportIndex})
+  }
+  
+  handleConfigRecieved(req: XMLHttpRequest) {
     const json = JSON.parse(req.responseText)
     const config = loadConfig(json)
     
@@ -48,10 +53,23 @@ class App extends React.Component<{}, {loadState: LoadState}> {
     this.setState({loadState: LoadState.error})
   }
   
+  loadConfig() {
+    const url = decodeURIComponent(location.search.substr(1))
+    
+    if (url.length > 0) {
+      http('get', url)
+        .then(this.handleConfigRecieved.bind(this))
+        .catch(this.handleConfigLoadFailed.bind(this))
+      
+    } else {
+      this.setState({loadState: LoadState.mising})
+    }
+  }
+  
   render() {
     return (
       <Provider store={store}>
-        <Report reportIndex={0}/>
+        <Report reportIndex={this.state.reportIndex}/>
       </Provider>
     )
   }
