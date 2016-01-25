@@ -97,6 +97,29 @@ describe('tree state', () => {
   })
 })
 
+describe('column state', () => {
+  it('should return active report columns', () => {
+    const state = dispatchActions(
+      Actions.setConfig({
+        apiKey: '',
+        reports: [
+          {
+            title: '',
+            groups: [],
+            datasourceID: 'foo',
+            columns: [
+              {title: 'foo', fieldID: 'foo', renderCell}
+            ]
+          }
+        ]
+      })
+    )
+    expect(Store.selectColumns(state, {reportIndex: 0})).to.eql([
+      {title: 'foo', fieldID: 'foo', renderCell}
+    ])
+  })
+})
+
 function dispatchActions(...actions: Actions.AnyAction[]) : Store.AppState {
   const initAction: any = {}
   return actions.reduce(Store.reduceApp, Store.reduceApp(undefined, initAction))

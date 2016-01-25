@@ -165,6 +165,24 @@ function getNode(disclosure: DisclosureState, keypath: string[], groups: GroupDe
 
 
 /**
+ * COLUMN STATE
+ */
+
+export const selectColumns = createSelector(
+  selectConfig, selectReportIndex,
+  (config, reportIndex) => {
+    if (!config) return []
+    
+    const report = config.reports[reportIndex]
+    if (!report) return []
+    
+    return report.columns
+  } 
+)
+
+
+
+/**
  *  UTILS
  */
 
