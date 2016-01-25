@@ -75,7 +75,9 @@ export interface ReportDescriptor {
   columns: ColumnDescriptor[],
   
   /** Columns representing grouped data in this report */
-  groups: GroupDescriptor[]
+  groups: GroupDescriptor[],
+
+  globalFilters: Filter[]
 }
 
 /** Display properties for a table data column */

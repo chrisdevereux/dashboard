@@ -1,4 +1,4 @@
-import {ConfigDescriptor, ReportDescriptor, GroupDescriptor, ColumnDescriptor} from './types'
+import {RowValue, Filter, FilterType, ConfigDescriptor, ReportDescriptor, GroupDescriptor, ColumnDescriptor} from './types'
 
 export type ConfigFile = {
   apiKey: string,
@@ -10,12 +10,19 @@ type ReportSection = {
   title: string,
   datasource: string,
   groups: ColumnSection[],
-  values: ColumnSection[]
+  values: ColumnSection[],
+  globalFilters?: GlobalFilterSection[]
 }
 
 type ColumnSection = {
   title: string,
   fieldID: string
+}
+
+type GlobalFilterSection = {
+  type?: string,
+  field: string,
+  value: any
 }
 
 export default function loadConfig(file: ConfigFile): ConfigDescriptor {
@@ -61,12 +68,18 @@ export default function loadConfig(file: ConfigFile): ConfigDescriptor {
       "Expected .values property to contain list of value column definitions",
       section
     )
+    assert(
+      !section.globalFilters || Array.isArray(section.globalFilters),
+      "Expected .globalFilters property to contain list of value column definitions",
+      section
+    )
     
     return {
       title: section.title,
       datasourceID: file.datasources[section.datasource],
       groups: section.groups.map(loadGroupColumn),
-      columns: section.values.map(loadValueColumn)
+      columns: section.values.map(loadValueColumn),
+      globalFilters: section.globalFilters ? section.globalFilters.map(loadGlobalFilter) : []
     }
   }
   
@@ -88,6 +101,60 @@ export default function loadConfig(file: ConfigFile): ConfigDescriptor {
       title: section.title,
       fieldID: section.fieldID,
       renderCell: (row) => String(row.sum[section.fieldID])
+    }
+  }
+  
+  function loadGlobalFilter(section: GlobalFilterSection): Filter {
+    assert(
+      typeof section.field === 'string',
+      "Expected .field property to name a field in the datasource",
+      section
+    )
+    
+    const type = loadFilterType(section.type, section)
+    
+    return {
+      type,
+      lhs: section.field,
+      rhs: loadFilterValue(section.value, type, section),
+    }
+  }
+  
+  function loadFilterType(type: string, context: Object): FilterType {
+    if (!type) return FilterType.equals
+
+    switch (type) {
+      case 'equals': return FilterType.equals
+      case 'contains': return FilterType.containsIgnoringCase
+      case 'in': return FilterType.in
+      default: throw Error(
+        `Expected filter type to be one of: "equals", "contains" or "in"\nin: ${JSON.stringify(context, null, 2)}`
+      )
+    }
+  }
+  
+  function loadFilterValue(value: any, type: FilterType, context: Object): RowValue {
+    const getInnerValue = (x: any) => {
+      assert(
+        typeof x === 'string' || typeof x === 'number',
+        "Expected filter value to be either a string or a number",
+        context
+      )
+      
+      return x
+    }
+    
+    if (type === FilterType.in) {
+      assert(
+        Array.isArray(value),
+        "Expected value provided for an 'in' filter to be a list of values",
+        context
+      )
+      
+      return value.map(getInnerValue)
+      
+    } else {
+      return getInnerValue(value)
     }
   }
 }

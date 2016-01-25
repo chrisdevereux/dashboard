@@ -1,6 +1,7 @@
 import {expect} from 'chai'
 import * as Actions from './actions'
-import * as Store from './store' 
+import * as Store from './store'
+import {FilterType} from './types'
 
 const renderCell = () => 'foo'
 const getKey = () => 'foo'
@@ -57,9 +58,10 @@ describe('report options', () => {
             title: 'Foo',
             datasourceID: '',
             columns: [],
-            groups: []
+            groups: [],
+            globalFilters: []
           }
-        ] 
+        ]
       })
     )
     
@@ -103,6 +105,9 @@ describe('tree state', () => {
                 renderCell,
                 getKey
               }
+            ],
+            globalFilters: [
+              {lhs: 'foo', type: FilterType.equals, rhs: 'bar'}
             ]
           }
         ]
@@ -114,13 +119,13 @@ describe('tree state', () => {
       values: undefined,
       renderPrimaryCell: renderCell,
       getKey,
-      queryString: `SELECT 'a', SUM('val') FROM ds GROUP BY 'a'`,
+      queryString: `SELECT 'a', SUM('val') FROM ds WHERE 'foo' = 'bar' GROUP BY 'a'`,
       children: {
         '"a1"': {
           values: undefined,
           renderPrimaryCell: renderCell,
           getKey,
-          queryString: `SELECT 'b', SUM('val') FROM ds WHERE 'a' = 'a1' GROUP BY 'b'`,
+          queryString: `SELECT 'b', SUM('val') FROM ds WHERE 'foo' = 'bar' AND 'a' = 'a1' GROUP BY 'b'`,
           children: null
         }
       }
@@ -140,7 +145,8 @@ describe('column state', () => {
             datasourceID: 'foo',
             columns: [
               {title: 'foo', fieldID: 'foo', renderCell}
-            ]
+            ],
+            globalFilters: []
           }
         ]
       })

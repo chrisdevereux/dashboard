@@ -32,6 +32,12 @@ export const selectReportOptions = createSelector(
   config => config ? config.reports.map((r, i) => ({id: i, title: r.title})) : []
 )
 
+export const selectGlobalFilters = createSelector(
+  selectConfig, selectReportIndex,
+  
+  (config, reportIndex) => config && config.reports[reportIndex].globalFilters 
+)
+
 export const selectAPIKey = createSelector(selectConfig, config => config && config.apiKey)
 
 const reduceReportConfig = createReducer<ConfigDescriptor>(null, (prev, action) => {
@@ -123,9 +129,9 @@ const reduceDisclosure: Reducer<DisclosureState> = createReducer<DisclosureState
 type QueryProvider = (keypath: string[]) => string
 
 export const selectQueryProvider = createSelector(
-  selectConfig, selectReportIndex,
+  selectConfig, selectReportIndex, selectGlobalFilters,
   
-  (config, reportIndex) => (keypath: string[]) => {
+  (config, reportIndex, globalFilters) => (keypath: string[]) => {
     if (!config) return null
     
     const report = config.reports[reportIndex]
@@ -136,11 +142,16 @@ export const selectQueryProvider = createSelector(
     
     return SQL.encode({
       datasourceID: report.datasourceID,
-      filter: parentGroups.map((g, i) => ({
-        type: FilterType.equals,
-        lhs: g.fieldID,
-        rhs: JSON.parse(keypath[i])
-      })),
+      filter: [
+        ...globalFilters,
+        ...parentGroups.map((g, i) => 
+          ({
+            type: FilterType.equals,
+            lhs: g.fieldID,
+            rhs: JSON.parse(keypath[i])
+          })
+        )
+      ],
       sum: report.columns.map(col => col.fieldID),
       groupBy: [group.fieldID] 
     })

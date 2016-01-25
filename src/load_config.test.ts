@@ -23,6 +23,11 @@ describe('loadConfig', () => {
               title: 'v1',
               fieldID: 'a'
             }
+          ],
+          globalFilters: [
+            {field: 'foo', value: 1},
+            {field: 'foo', type: 'equals', value: '2'},
+            {field: 'foo', type: 'in', value: [2]}
           ]
         }
       ]
