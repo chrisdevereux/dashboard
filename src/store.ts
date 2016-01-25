@@ -7,12 +7,14 @@ import {mapDictionary} from './util'
 
 export type AppState = {
   disclosure: DisclosureState,
-  config: ConfigDescriptor
+  config: ConfigDescriptor,
+  currentReport: number
 }
 
 export const reduceApp = createReducer(null, (prev: AppState, action: Actions.AnyAction) => ({
   disclosure: reduceDisclosure(prev && prev.disclosure, action),
-  config: reduceReportConfig(prev && prev.config, action)
+  config: reduceReportConfig(prev && prev.config, action),
+  currentReport: reduceCurrentReport(prev && prev.currentReport, action)
 }))
 
 
@@ -22,10 +24,6 @@ export const reduceApp = createReducer(null, (prev: AppState, action: Actions.An
 
 export function selectConfig(state: AppState): ConfigDescriptor {
   return state.config
-}
-
-export function selectReportIndex(_: {}, props: {reportIndex: number}): number {
-  return props.reportIndex
 }
 
 export const selectAPIKey = createSelector(selectConfig, config => config && config.apiKey)
@@ -38,6 +36,23 @@ const reduceReportConfig = createReducer<ConfigDescriptor>(null, (prev, action) 
     return prev
   }
 })
+
+
+/**
+ * ACTIVE REPORT STATE
+ */
+
+export function selectReportIndex(state: AppState): number {
+  return state.currentReport
+}
+
+const reduceCurrentReport = createReducer(0, (prev, action) => {
+  if (Actions.isSetReport(action)) {
+    return action.index
+  } else {
+    return prev
+  }
+});
 
 
 

@@ -38,10 +38,19 @@ describe('set-config', () => {
   })
 })
 
+describe('set-report', () => {
+  it('should set config', () => {
+    const state = dispatchActions(
+      Actions.setReport(2)
+    )
+    expect(Store.selectReportIndex(state)).to.eql(2)
+  })
+})
+
 describe('tree state', () => {
   it('should return null prior to config loading', () => {
     const state = dispatchActions()
-    expect(Store.selectTreeState(state, {reportIndex: 0})).to.be.null
+    expect(Store.selectTreeState(state)).to.be.null
   })
   
   it('should merge configuration with disclosure state', () => {
@@ -79,7 +88,7 @@ describe('tree state', () => {
       Actions.toggleDisclosed(['"a1"'])
     )
     
-    expect(Store.selectTreeState(state, {reportIndex: 0})).to.eql({
+    expect(Store.selectTreeState(state)).to.eql({
       values: undefined,
       renderPrimaryCell: renderCell,
       getKey,
@@ -114,7 +123,7 @@ describe('column state', () => {
         ]
       })
     )
-    expect(Store.selectColumns(state, {reportIndex: 0})).to.eql([
+    expect(Store.selectColumns(state)).to.eql([
       {title: 'foo', fieldID: 'foo', renderCell}
     ])
   })
