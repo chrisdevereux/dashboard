@@ -91,11 +91,15 @@ type DisclosureChangeCallback = (keypath: string[]) => void
  * Responsible for rendering both the column heading (when mounted as a component),
  * and, via its renderCell prop, a data cell in the table body.
  * */
-export class Column extends React.Component<ColumnDescriptor, {}> {
+export class Column extends React.Component<ColumnProps, {}> {
   render() {
     return <th>{this.props.title}</th>
   }  
 }
+
+interface ColumnProps extends ColumnDescriptor {
+  key?: string|number
+} 
 
 
 

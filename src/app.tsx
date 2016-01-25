@@ -1,72 +1,73 @@
 import * as React from 'react'
 import {render} from 'react-dom'
+import{createStore, applyMiddleware} from 'redux'
+import {Provider} from 'react-redux'
+import logger = require('redux-logger')
 
-import TreeView, {Column} from './tree_view'
-import {TreeNode, RowData} from './types'
+import * as Store from './store'
+import * as Actions from './actions'
+import Report from './report'
 
-class App extends React.Component<{}, {data: TreeNode}> {
+import http from './http'
+import loadConfig from './load_config'
+
+const store = createStore(Store.reduceApp, applyMiddleware(logger()))
+
+enum LoadState {
+  loaded,
+  loading,
+  error,
+  mising
+}
+
+class App extends React.Component<{}, {loadState: LoadState}> {
   componentWillMount() {
-    this.toggleDisplayed = this.toggleDisplayed.bind(this)
-    this.state = {data: this.generateNode()}
-  }
+    const url = decodeURIComponent(location.search.substr(1))
+    console.log(url)
+    
+    if (url.length > 0) {
+      this.setState({loadState: LoadState.loading})
 
-  render() {
-    return (
-      <TreeView data={this.state.data} onDisclosureChange={this.toggleDisplayed}>
-        <Column fieldID='foo' title='Title' renderCell={(data: RowData) => String(data['title'])}/>
-        <Column fieldID='foo' title='Value' renderCell={(data: RowData) => String(data['value'])}/>
-      </TreeView> 
-    )
-  }
-  
-  toggleDisplayed(keypath: string[]) {
-    this.setState({
-      data: this.toggle(keypath, this.state.data)
-    });
-  }
-  
-  toggle(keypath: string[], node: TreeNode): TreeNode {
-      const [key, ...rest] = keypath
+      http('get', url)
+        .then(this.loadConfig.bind(this))
+        .catch(this.handleConfigLoadFailed.bind(this))
       
-      if (key) {
-        return Object.assign(node, {
-          children: Object.assign(node.children, {
-            [key]: this.toggle(rest, node.children[key])
-          })
-        }) 
-        
-      } else {
-        if (node) {
-          return null
-
-        } else {
-          return this.generateNode()
-        }
-      }
-    }
-  
-  generateNode(): TreeNode {
-    return {
-      values: this.generateValues(),
-      renderPrimaryCell: data => `Row ${data['title']}`,
-      getKey: data => String(data['title']),
-      children: Math.random() < 0.2 ? null : {},
-      queryString: ''
+    } else {
+      this.setState({loadState: LoadState.mising})
     }
   }
   
-  generateValues(): RowData[]  {
-    const data: RowData[] = []
-    const start = Math.floor(Math.random() * 100)
+  loadConfig(req: XMLHttpRequest) {
+    const json = JSON.parse(req.responseText)
+    const config = loadConfig(json)
     
-    for (let i = 0; i < 20; i++) {
-      data[i] = {
-        title: start + i,
-        value: Math.random() * 10000
+    store.dispatch(Actions.setConfig(config))
+    this.setState({loadState: LoadState.loaded})
+  }
+  
+  handleConfigLoadFailed(error: Error) {
+    this.setState({loadState: LoadState.error})
+  }
+  
+  render() {
+    switch (this.state.loadState) {
+      case LoadState.mising: {
+        return <span>Missing</span>
+      }
+      case LoadState.loading: {
+        return <span>Loading</span>
+      }
+      case LoadState.loaded: {
+        return (
+          <Provider store={store}>
+            <Report reportIndex={0}/>
+          </Provider>
+        )
+      }
+      case LoadState.error: {
+        return <span>Error</span>
       }
     }
-    
-    return data
   }
 }
 

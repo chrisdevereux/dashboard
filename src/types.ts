@@ -2,7 +2,7 @@ import * as React from 'react'
 
 
 /** TreeView data node */
-export type TreeNode = {
+export interface TreeNode {
   /** Array of row data for this node's immediate children */
   values: RowData[]
   
@@ -20,7 +20,7 @@ export type TreeNode = {
 
 
 /** Represent an sql aggregate query **/
-export type Query = {
+export interface Query {
   datasourceID: string,
   filter: Filter[],
   groupBy: string[],
@@ -28,7 +28,7 @@ export type Query = {
 };
 
 /** Representation of a sql query 'WHERE' condition */
-export type Filter = {
+export interface Filter {
   type: FilterType,
   lhs: string, 
   rhs: RowValue|RowValue[]
@@ -44,7 +44,7 @@ export enum FilterType {
 
 
 /** Row data type */
-export type RowData = {
+export interface RowData {
   groupBy: {[index: string]: RowValue},
   sum: {[index: string]: RowValue}
 }
@@ -58,13 +58,13 @@ export type QueryResolver = (query: string) => Promise<RowData[]>
 
 
 /** Display & data properties of the entire presentation **/
-export type ConfigDescriptor = {
+export interface ConfigDescriptor {
   apiKey: string,
   reports: ReportDescriptor[]
 } 
 
 /** Display & data properties of a report **/ 
-export type ReportDescriptor = {
+export interface ReportDescriptor {
   /** Title of this report */
   title: string,
   
@@ -79,7 +79,7 @@ export type ReportDescriptor = {
 }
 
 /** Display properties for a table data column */
-export type GroupDescriptor = {
+export interface GroupDescriptor {
   /** User-displayed column title */
   title: string,
   
@@ -94,7 +94,7 @@ export type GroupDescriptor = {
 }
 
 /** Display properties for a table data column */
-export type ColumnDescriptor = {
+export interface ColumnDescriptor {
   /** User-displayed column title */
   title: string,
   
