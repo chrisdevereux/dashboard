@@ -12,6 +12,8 @@
   "author": "Chris Devereux",
   "license": "ISC",
   "dependencies": {
+    "es5-shim": "^4.5.5",
+    "es6-shim": "^0.34.4",
     "normalize.css": "^3.0.3",
     "react": "^0.14.7",
     "react-dom": "^0.14.7",
@@ -22,6 +24,9 @@
     "reselect": "^2.0.3"
   },
   "devDependencies": {
+    "babel-core": "^6.5.2",
+    "babel-loader": "^6.2.3",
+    "babel-plugin-transform-es3-member-expression-literals": "^6.5.0",
     "chai": "^3.5.0",
     "chai-equal-jsx": "^1.0.9",
     "css-loader": "^0.23.1",

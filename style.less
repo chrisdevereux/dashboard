@@ -1,5 +1,5 @@
 @header-color: #fafafa;
-@border-color: rgba(0,0,0,.07);
+@border-color: rgb(220, 220, 220);
 @link-color: #008cff;
 @body-text-color: #364149;
 @header-text-color: lighten(black, 20%);
@@ -22,7 +22,7 @@ a:hover {
 .nav-view {
   > ul {
     display: block;
-    background-color: rgba(0,0,0,.70);
+    background-color: rgb(20,20,20);
     
     list-style: none;
     font-size: 9pt;
@@ -60,6 +60,7 @@ a:hover {
     
     li.inactive .active-indicator {
       opacity: 0;
+      filter: alpha(opacity=0);
     }
     
     .active-indicator-container {

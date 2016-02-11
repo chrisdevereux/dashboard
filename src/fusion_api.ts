@@ -1,10 +1,19 @@
 import {QueryResolver, RowData, RowValue} from './types'
 import http from './http'
 
+declare namespace process {
+  namespace env {
+    var GOOGLE_APIS_HOST: string
+  }
+}
+
 export function fusionAPIClient(apiKey: string): QueryResolver {
   return queryString => {
+    // Debug override
+    const host = process.env.GOOGLE_APIS_HOST || 'https://www.googleapis.com'
+    
     const url = [
-      `https://www.googleapis.com/fusiontables/v2/query?key=${apiKey}`,
+      `${host}/fusiontables/v2/query?key=${apiKey}`,
       `sql=${encodeURIComponent(queryString)}`
     ].join('&')
     

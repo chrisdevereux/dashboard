@@ -3,13 +3,14 @@
 const webpack = require('webpack');
 const path = require('path');
 
-const NODE_ENV = process.env.NODE_ENV || 'preview';
-const environment = {
-  NODE_ENV
-};
+const NODE_ENV = process.env.NODE_ENV || 'debug';
+const GOOGLE_APIS_HOST = process.env.GOOGLE_APIS_HOST;
+const environment = {NODE_ENV, GOOGLE_APIS_HOST}
+
+console.log('environment:', environment)
 
 module.exports = {
-  devtool: 'eval-source-map',
+  devtool: getDevtool(),
   output: {
     publicPath: '/'
   },
@@ -20,7 +21,7 @@ module.exports = {
     loaders: [
       {
         test: /\.tsx?$/,
-        loader: 'ts'
+        loader: getTSLoader()
       },
       {
         test: /\.css$/,
@@ -40,25 +41,59 @@ module.exports = {
       }
     ]
   },
-  entry: (
-    NODE_ENV === 'preview' ? [
-      'webpack-dev-server/client?http://0.0.0.0:8080',
-      'normalize.css',
-      './style.less',
-      './src/app.tsx'
-    ] : []
-  ),
-  plugins: (
-    NODE_ENV === 'preview' ? [
+  entry: getEntryPoints(),
+  plugins: getPlugins()
+};
+
+function getTSLoader() {
+  if (NODE_ENV === 'debug') {
+    return 'ts'
+    
+  } else {
+    return [
+      'babel?plugins=transform-es3-member-expression-literals',
+      'ts'
+    ].join('!')
+  }
+}
+
+function getPlugins() {
+  if (NODE_ENV === 'debug') {
+    return [
       new webpack.HotModuleReplacementPlugin(),
       new webpack.NoErrorsPlugin(),
-      new webpack.DefinePlugin({
-        'process.env': JSON.stringify(environment)
-      })
-    ] : [,
-      new webpack.DefinePlugin({
-        'process.env': JSON.stringify(environment)
-      })
+      new webpack.DefinePlugin({'process.env': JSON.stringify(environment)})
     ]
-  )
-};
+  } else {
+    return [
+      new webpack.DefinePlugin({'process.env': JSON.stringify(environment)})
+    ]
+  }
+}
+
+function getDevtool() {
+  if (NODE_ENV === 'debug') {
+    return 'eval-source-map'
+  }
+}
+
+function getEntryPoints() {
+  const common = [
+    './node_modules/es5-shim/es5-shim.js',
+    './node_modules/es5-shim/es5-sham.js',
+    './node_modules/es6-shim/es6-shim.js',
+    './node_modules/es6-shim/es6-sham.js',
+    'normalize.css',
+    './style.less',
+    './src/app.tsx'
+  ]
+  if (NODE_ENV === 'debug') {
+    return [
+      'webpack-dev-server/client?http://0.0.0.0:8080',
+      ...common
+    ]
+
+  } else {
+    return common
+  }
+}
